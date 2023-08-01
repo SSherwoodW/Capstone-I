@@ -1,0 +1,15 @@
+{% extends 'base.html' %} {% block title %}Favorites Map{% endblock %} {% block
+content %}
+<!-- <h1>{% for favorite in favorites%}{{favorite.rent_average}}{%endfor%}</h1>
+<h1>{% for favorite in favorites%}{{favorite.location_id}}{%endfor%}</h1>
+<h1>{% for address in addresses %}{{address}}{% endfor %}</h1>
+<h1>{{coords}}</h1> -->
+
+<div id="map-container" class="container">
+    <button id="display-map" type="button" class="btn btn-md btn-success">
+        Display all Favorites on Map!
+    </button>
+    <div id="favs-map" class="container-fluid"></div>
+</div>
+
+{% endblock %}

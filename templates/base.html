@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{% block title %}Home Page{% endblock %}</title>
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+        <link
+            rel="stylesheet"
+            href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+            crossorigin="anonymous" />
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
+        <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+        <script type="module" src="/static/js/index.js"></script>
+        <!-- <script type="module" src="/static/js/favorites.js"></script> -->
+
+    </head>
+    <body>
+        <body class="{% block body_class %}{% endblock %}">
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    
+      <a href="/search" class="navbar-brand">
+        <img class="img-fluid" src="/static/images/logo-color.png" alt="logo">
+        <span>MoveIn</span>
+      </a>
+      
+    
+    
+    <ul class="nav navbar-nav navbar-right">
+      
+      {% if not g.user %}
+      <li><a href="/signup">Sign up</a></li>
+      <li><a href="/login">Log in</a></li>
+      {% else %}
+      <li class="nav-item"><a href="/search">Home</a></li>
+      <li class="nav-item">
+        <a href="/users/{{ g.user.id }}">
+          {{ g.user.username }}
+        </a>
+      </li>
+      <li id="favorites" class="nav-item"><a href="/favorites">Favorites</a></li>
+      <li class="nav-item"><a href="/logout">Log out</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>
+<div class="container">
+  {% for category, message in get_flashed_messages(with_categories=True) %}
+  <div class="alert alert-{{ category }}">{{ message }}</div>
+  {% endfor %}
+
+        {% block content %} {% endblock %}
+        <div id="map-container" class="container">
+        <div id="map" class="container-fluid"></div>
+        </div>
+
+        <!-- <div id="rental-data">Rental averages for your zip code will appear here. </div> -->
+
+        <script src="https://unpkg.com/jquery"></script>
+        <script src="https://unpkg.com/axios/dist/axios.js"></script>
+        <!-- prettier-ignore -->
+
+        <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+        ({key: "AIzaSyAOFeczY7SAyGMuSYp9tBtfniTmSiy8RxU", v: "beta"});</script>
+    </body>
+</html>
