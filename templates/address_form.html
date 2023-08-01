@@ -1,0 +1,25 @@
+{% extends 'base.html' %} {% block title %} Address Search {% endblock %} {%
+block content %}
+<h2>Search for area rental average:</h2>
+
+<div class="container-fluid">
+    <div class="col-md-8">
+        <form id="address-lookup-form" method="post">
+            {% include "_form.html" %}
+        </form>
+        <button
+            class="btn btn-primary"
+            form="address-lookup-form"
+            type="submit"
+            formaction="/api/geocode">
+            Submit
+        </button>
+    </div>
+</div>
+
+<div id="map-container" class="container">
+    <div id="map" class="container-fluid"></div>
+</div>
+
+<div id="rental-data">Rental averages for your zip code will appear here.</div>
+{% endblock %}
