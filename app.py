@@ -34,7 +34,6 @@ app.config['SECRET_KEY'] = os.environ.get(
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
-# db.drop_all()
 
 
 #########################################################################################################################
@@ -140,6 +139,7 @@ def logout():
 
 
 def get_coords(address):
+    """Get coordinates from address search."""
     res = requests.get(f"{MQ_API_BASE_URL}/address",
                        params={'key': key_mq, 'location': address})
     data = res.json()
