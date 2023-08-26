@@ -1,2 +1,14 @@
-{% extends 'base.html' %} {% block title %}TEST {% endblock %} {% block content
-%} {% endblock %}
+{% extends 'base.html' %} {% block title %}TEST {% endblock %} {% block head%}
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/jasmine-core@4.1.0/lib/jasmine-core/jasmine.css" />
+{% endblock %} {% block content %}
+<script src="https://unpkg.com/jasmine-core@4.1.0/lib/jasmine-core/jasmine.js"></script>
+<script src="https://unpkg.com/jasmine-core@4.1.0/lib/jasmine-core/jasmine-html.js"></script>
+<script src="https://unpkg.com/jasmine-core@4.1.0/lib/jasmine-core/boot0.js"></script>
+<script src="https://unpkg.com/jasmine-core@4.1.0/lib/jasmine-core/boot1.js"></script>
+
+<script src="Users/scottwaller/Documents/movein-app/static/js/index.js"></script>
+<script src="/static/js/index.test.js"></script>
+<script src="/static/css/style.css"></script>
+{% endblock %}

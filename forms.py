@@ -44,7 +44,7 @@ class AddressForm(FlaskForm):
     """Address search form."""
 
     bedrooms = IntegerField('Bedrooms', validators=[
-                            InputRequired(), NumberRange(min=0, max=4)])
+                            InputRequired()])
     address = StringField('Street Address', validators=[InputRequired()])
     zipcode = IntegerField('ZIP or postal code', validators=[
                            InputRequired(), Length(min=5, max=9)])

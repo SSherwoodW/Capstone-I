@@ -25,22 +25,6 @@ async function initMap(coordinates) {
     });
 }
 
-// Initialize coordinates
-// let coordinates;
-
-// async function getCoordinates(payload) {
-//     data = await axios
-//         .post("/api/geocode", payload, {
-//             headers: { "Content-Type": "application/json" },
-//         })
-//         .then(function (response) {
-//             console.log(response);
-//             return response;
-//         });
-//     let coordinates = data.data;
-//     return coordinates;
-// }
-
 // Process address search form.
 async function processForm(evt) {
     evt.preventDefault();
@@ -100,13 +84,22 @@ async function processForm(evt) {
             }
             return response;
         });
-    const average =
-        realtyData["data"]["rentalData"]["detailed"][`${bedrooms}`][
-            "averageRent"
-        ];
 
-    // Display results
-    $("#rental-data").html(`
+    // check if data exists for search parameters.
+    if (!realtyData["data"]["rentalData"]["detailed"][`${bedrooms}`]) {
+        return $("#rental-data").html(
+            `<br>
+            <br>
+            <div class="alert alert-warning" role="alert">No data available for ${bedrooms}-bedroom rentals in ${zipcode}.</div>`
+        );
+    } else {
+        const average =
+            realtyData["data"]["rentalData"]["detailed"][`${bedrooms}`][
+                "averageRent"
+            ];
+
+        // Display results
+        $("#rental-data").html(`
         <div class="container-fluid">
     <p class="h2">Rental Averages for ${zipcode}</p>
     <button id="favorite" type="submit" class="btn btn-outline-info" action="/favorites/add"> Save to favorites </button>
@@ -126,6 +119,7 @@ async function processForm(evt) {
     </table>
     </div>
     `);
+    }
 
     // add EventListener to save a search to favorites table in DB
     document.getElementById("favorite").addEventListener("click", saveFavorite);

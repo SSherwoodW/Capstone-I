@@ -352,6 +352,9 @@ def add_favorites():
         print("Already a favorite.")
     return render_template('favs_map.html', average=average)
 
+# @app.route('/favorites/delete', methods=["POST"])
+# def delete_favorite():
+
 
 @app.route('/favorites/data')
 def get_favorites_data():
