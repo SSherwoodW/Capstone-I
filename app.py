@@ -1,6 +1,8 @@
 import os
 import requests
 
+# from flask_migrate import Migrate
+
 
 from flask import Flask, g, render_template, request, flash, redirect, session, abort
 from flask_debugtoolbar import DebugToolbarExtension
@@ -22,15 +24,16 @@ CURR_USER_KEY = "curr_user"
 app = Flask(__name__)
 app.app_context().push()
 
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql:///moveIn'))
+
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    "DATABASE_URL", "postgresql:///moveIn"
+)
 
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
-app.config['SQLALCHEMY_ECHO'] = False
-app.config['SECRET_KEY'] = os.environ.get(
-    'SECRET_KEY', "this is wildly unpredictable")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = True
+app.config["SQLALCHEMY_ECHO"] = False
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "this is wildly unpredictable")
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
@@ -66,7 +69,7 @@ def do_logout():
         del session[CURR_USER_KEY]
 
 
-@app.route('/signup', methods=["GET", "POST"])
+@app.route("/signup", methods=["GET", "POST"])
 def signup():
     """Handle user signup.
 
@@ -88,49 +91,60 @@ def signup():
                 first_name=form.first_name.data,
                 last_name=form.last_name.data,
                 email=form.email.data,
-
             )
             db.session.commit()
 
         except IntegrityError:
-            flash("Username already taken", 'danger')
-            return render_template('users/signup.html', form=form)
+            flash("Username already taken", "danger")
+            return render_template("users/signup.html", form=form)
 
         do_login(user)
 
         return redirect("/search")
 
     else:
-        return render_template('users/signup.html', form=form)
+        return render_template("users/signup.html", form=form)
 
 
-@app.route('/login', methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     """Handle user login."""
 
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.authenticate(form.username.data,
-                                 form.password.data)
+        user = User.authenticate(form.username.data, form.password.data)
 
         if user:
             do_login(user)
             flash(f"Hello, {user.username}!", "success")
             return redirect("/search")
 
-        flash("Invalid credentials.", 'danger')
+        flash("Invalid credentials.", "danger")
 
-    return render_template('users/login.html', form=form)
+    return render_template("users/login.html", form=form)
 
 
-@app.route('/logout')
+@app.route("/logout")
 def logout():
     """Handle logout of user."""
     do_logout()
     flash("You've logged out of MoveIn.")
 
-    return redirect('/login')
+    return redirect("/login")
+
+
+@app.route("/users/<int:user_id>")
+def get_user_data(user_id):
+    print(user_id)
+    if user_id == g.user.id:
+        user = g.user
+        favorites = Favorite.query.filter_by(user_id=user.id)
+        return render_template("users/user_page.html", user=user, favorites=favorites)
+    else:
+        flash("User does not exist", "danger")
+        return IntegrityError("User does not exist")
+
 
 #########################################################################################################################
 # Display location on Map via:
@@ -140,12 +154,13 @@ def logout():
 
 def get_coords(address):
     """Get coordinates from address search."""
-    res = requests.get(f"{MQ_API_BASE_URL}/address",
-                       params={'key': key_mq, 'location': address})
+    res = requests.get(
+        f"{MQ_API_BASE_URL}/address", params={"key": key_mq, "location": address}
+    )
     data = res.json()
-    lat = data['results'][0]['locations'][0]['latLng']['lat']
-    lng = data['results'][0]['locations'][0]['latLng']['lng']
-    coords = {'lat': lat, 'lng': lng}
+    lat = data["results"][0]["locations"][0]["latLng"]["lat"]
+    lng = data["results"][0]["locations"][0]["latLng"]["lng"]
+    coords = {"lat": lat, "lng": lng}
     return coords
 
 
@@ -160,52 +175,57 @@ def get_batch_coords(addresses):
             title: "Airport Mesa",
         }
             }
-            """
+    """
 
-    params = {'key': key_mq}
-    params['location'] = addresses
+    params = {"key": key_mq}
+    params["location"] = addresses
     print(params)
-    res = requests.get(f"{MQ_API_BASE_URL}/batch",
-                       params=params)
+    res = requests.get(f"{MQ_API_BASE_URL}/batch", params=params)
     data = res.json()
     position_dict = {}
-    for i in range(len(data['results'])):
+    for i in range(len(data["results"])):
         lat_lng_dict = {}
         position_dict[i] = lat_lng_dict
         # {position: [value]}
         for j in range(len(position_dict)):
-            lat_lng_dict['lat'] = data['results'][i]['locations'][0]['latLng']['lat']
-            lat_lng_dict['lng'] = data['results'][i]['locations'][0]['latLng']['lng']
+            lat_lng_dict["lat"] = data["results"][i]["locations"][0]["latLng"]["lat"]
+            lat_lng_dict["lng"] = data["results"][i]["locations"][0]["latLng"]["lng"]
             # print(f"Position dictionary in get_batch_coords: {position_dict}")
     return position_dict
 
 
 def get_realty_data(zip_code):
-    res = requests.get(f"{RM_API_BASE_URL}/{zip_code}",
-                       headers={'X-RapidAPI-Key': key_rm, 'X-RapidAPI-Host': "realty-mole-property-api.p.rapidapi.com", 'Content-Type': 'application/json'})
+    res = requests.get(
+        f"{RM_API_BASE_URL}/{zip_code}",
+        headers={
+            "X-RapidAPI-Key": key_rm,
+            "X-RapidAPI-Host": "realty-mole-property-api.p.rapidapi.com",
+            "Content-Type": "application/json",
+        },
+    )
     print(res)
     if res.ok:
-        print('OK!')
+        print("OK!")
         data = res.json()
         return data
     else:
-        error_message = flash(
-            "Unable to find rental data for that location.", "danger")
-        print('Boo!')
+        error_message = flash("Unable to find rental data for that location.", "danger")
+        print("Boo!")
         return error_message
 
     # ENDPOINTS
+
+
 # ***************************************************************************
 
 
-@app.route('/')
+@app.route("/")
 def initiate():
-    return redirect('/search')
+    return redirect("/search")
 
 
-@ app.route('/search')
+@app.route("/search")
 def show_mapping():
-
     if not g.user:
         flash("Access unauthorized. Please log in.", "danger")
         return redirect("/login")
@@ -214,21 +234,24 @@ def show_mapping():
     return render_template("address_form.html", form=form)
 
 
-@ app.route('/api/geocode', methods=["GET", "POST"])
+@app.route("/api/geocode", methods=["GET", "POST"])
 def locate_on_map():
     data = request.json
-    print(data)
-    address = data['address']
-    coords = get_coords(address)
+    print(f"this is /api/geocode data: {data}")
+    full_address = (
+        f"{data['address']}, {data['city']}, {data['state']}, {data['zipcode']}"
+    )
+    coords = get_coords(full_address)
+    print(coords)
     return coords
 
 
-@app.route('/api/rental-data', methods=["POST"])
+@app.route("/api/rental-data", methods=["POST"])
 def get_rental_data():
     print(request)
     data = request.json
     print(f"This is /api/rental-data data: {data}")
-    zip_code = data['zipcode']
+    zip_code = data["zipcode"]
     print(zip_code)
     rental_data = get_realty_data(zip_code)
     if rental_data is None:
@@ -237,17 +260,17 @@ def get_rental_data():
         return rental_data
 
 
-@ app.route('/adddata', methods=["GET", "POST"])
+@app.route("/adddata", methods=["GET", "POST"])
 def save_search_to_db():
     data = request.json
     print(data)
 
-    state = data['state'].capitalize()
+    state = data["state"].capitalize()
     print(state)
-    city = data['city'].capitalize()
-    address = data['address']
-    zipcode = data['zipcode']
-    bedrooms = data['bedrooms']
+    city = data["city"].capitalize()
+    address = data["address"]
+    zipcode = data["zipcode"]
+    bedrooms = data["bedrooms"]
 
     # add form value for state to DB
     # state_exists = db.session.query(State.name).filter_by(name=state).first()
@@ -289,8 +312,13 @@ def save_search_to_db():
         else:
             city_obj = City.query.filter_by(name=new_city.name).first()
         print(city_obj)
-        new_location = Location(street_address=address,
-                                zip_code=zipcode, city_id=city_obj.id, bedrooms=bedrooms, user_id=g.user.id)
+        new_location = Location(
+            street_address=address,
+            zip_code=zipcode,
+            city_id=city_obj.id,
+            bedrooms=bedrooms,
+            user_id=g.user.id,
+        )
         db.session.add(new_location)
         db.session.commit()
     else:
@@ -299,7 +327,7 @@ def save_search_to_db():
     return data
 
 
-@app.route('/api/batchgeocode', methods=["GET", "POST"])
+@app.route("/api/batchgeocode", methods=["GET", "POST"])
 def get_favorites_coords():
     addresses = []
     favorites = Favorite.query.all()
@@ -317,9 +345,8 @@ def get_favorites_coords():
     return coords
 
 
-@app.route('/favorites')
+@app.route("/favorites")
 def display_favorites():
-
     if not g.user:
         flash("Access unauthorized. Please log in.", "danger")
         return redirect("/login")
@@ -327,43 +354,42 @@ def display_favorites():
     return render_template("favs_map.html")
 
 
-@app.route('/favorites/add', methods=["GET", "POST"])
+@app.route("/favorites/add", methods=["GET", "POST"])
 def add_favorites():
-
     data = request.json
     print(data)
 
-    average = data['average']
-    address = data['address']
+    average = data["average"]
+    address = data["address"]
 
     location = Location.query.filter_by(street_address=address).first()
     print(f"The location ID for {location.street_address} is {location.id}")
     # IF location_id.id IN favorites.location_id
     favorite_location_id_exists = Favorite.query.filter_by(
-        location_id=location.id).first()
+        location_id=location.id
+    ).first()
     if favorite_location_id_exists is None:
         location_obj = Location.query.filter_by(street_address=address).first()
         print(location_obj)
-        new_favorite = Favorite(rent_average=average,
-                                user_id=g.user.id, location_id=location_obj.id)
+        new_favorite = Favorite(
+            rent_average=average, user_id=g.user.id, location_id=location_obj.id
+        )
         db.session.add(new_favorite)
         db.session.commit()
     else:
         print("Already a favorite.")
-    return render_template('favs_map.html', average=average)
-
-# @app.route('/favorites/delete', methods=["POST"])
-# def delete_favorite():
+    return render_template("favs_map.html", average=average)
 
 
-@app.route('/favorites/data')
+@app.route("/favorites/data")
 def get_favorites_data():
     favorites = Favorite.query.all()
     addresses = []
     for favorite in favorites:
         print(favorite)
-        location_id = db.session.query(Location.id).filter_by(
-            id=favorite.location_id).first()
+        location_id = (
+            db.session.query(Location.id).filter_by(id=favorite.location_id).first()
+        )
         location = Location.query.get(location_id)
         rent = favorite.rent_average
         address = f"{location.street_address} {location.zip_code} Bedrooms: {location.bedrooms} Rent: {rent}"

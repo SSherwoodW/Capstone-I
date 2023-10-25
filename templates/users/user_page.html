@@ -1,0 +1,12 @@
+{% extends 'base.html' %} {% block content %}
+
+<h3>Tinkerbell</h3>
+
+<h4>Your Favorites</h4>
+<ul>
+    {% for favorite in favorites%}
+    <li>{{favorite.location_id}}{{favorite.rent_average}}</li>
+    {%endfor%}
+</ul>
+
+{% endblock %}

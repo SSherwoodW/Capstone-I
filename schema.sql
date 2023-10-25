@@ -1,13 +1,14 @@
-
+\c moveIn
 
 CREATE TABLE users
 (
     id SERIAL PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    username TEXT NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    username TEXT NOT NULL,
-    password varchar NOT NULL
-    location varchar(50)
+    location varchar(50),
+    password varchar(30) NOT NULL
 );
 
 CREATE TABLE states 
@@ -21,15 +22,15 @@ CREATE TABLE cities
 (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    state_id REFERENCES states
+    state_id INTEGER REFERENCES states(id)
 );
 
 
 CREATE TABLE locations
 (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users ON DELETE CASCADE,
-    city_id INTEGER REFERENCES cities ON DELETE CASCADE
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    city_id INTEGER REFERENCES cities(id) ON DELETE CASCADE
     address varchar(150) NOT NULL,
     search_radius INTEGER NOT NULL
 );

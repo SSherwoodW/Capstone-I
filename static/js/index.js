@@ -189,9 +189,6 @@ async function initFavsMap(coordinates) {
     });
 
     const favorites = coordinates;
-    // for (favorite in favorites) {
-    //     console.log(favorite);
-    // }
 
     // Create an info window to share between markers.
     const infoWindow = new InfoWindow();
@@ -230,8 +227,8 @@ async function loadFavorites() {
 
     // Get addresses for each favorite from python endpoint.
     const addresses = await axios.get("favorites/data");
+    console.log(addresses.data);
     let favorites = addresses.data;
-    console.log(favorites.length);
 
     let coordinates = data.data;
     let length = Object.keys(coordinates);
@@ -245,6 +242,31 @@ async function loadFavorites() {
         position["title"] = favorites[i];
         savedFaves.push(position);
     }
+
+    // Create table of favorites to display alongside map
+    let favsList = `<div class="container-fluid">
+  <table class="table table-striped">
+  <thead>
+    <tr>
+        <th scope="col">Favorites</th>
+    </tr>
+  </thead>
+  <tbody>`;
+
+    for (let i = 0; i < addresses.data.length; i++) {
+        console.log(addresses.data[i]);
+        favsList += `<tr>
+        <td scope="row">${addresses.data[i]}</td
+        </tr>`;
+    }
+
+    favsList += `</tbody>
+    </table>
+    </div>`;
+    console.log(favsList);
+
+    // Display results
+    $("#favs-container").html(favsList);
 
     // Display map of favorites.
     initFavsMap(savedFaves);
